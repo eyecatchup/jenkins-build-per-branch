@@ -39,6 +39,8 @@ class Main {
         // we need to merge in those properties in case the script is being called from `gradle syncWithGit` and the user is giving us system properties
         Map<String, String> argsMap = mergeSystemPropertyOptions(commandLineOptions)
 
+        println "arguments: ${argsMap}"
+
         if (argsMap.help) {
             cli.usage()
             System.exit(0)
