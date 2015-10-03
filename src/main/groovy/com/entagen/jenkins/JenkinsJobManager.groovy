@@ -128,7 +128,7 @@ class JenkinsJobManager {
 //        List<BranchView> expectedBranchViews = allBranchNames.collect { String branchName -> new BranchView(branchName: branchName, templateJobPrefix: this.templateJobPrefix) }
 
 //        List<BranchView> missingBranchViews = expectedBranchViews.findAll { BranchView branchView -> !existingViewNames.contains(branchView.viewName)}
-        addMissingViews(this.templateJobPrefix as List<BranchView>)
+        addMissingViews(new BranchView(branchName: this.templateJobPrefix, templateJobPrefix: this.templateJobPrefix))
 
 //        if (!noDelete) {
 //            List<String> deprecatedViewNames = getDeprecatedViewNames(existingViewNames, expectedBranchViews)
