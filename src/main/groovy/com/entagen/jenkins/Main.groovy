@@ -87,7 +87,7 @@ class Main {
     public static Map<String, String> mergeSystemPropertyOptions(OptionAccessor commandLineOptions) {
         Map <String, String> mergedArgs = [:]
 
-        System.getProperties().each { String property ->
+        System.getProperties().stringPropertyNames().each { String property ->
             println "Property: ${property}"
         }
 
