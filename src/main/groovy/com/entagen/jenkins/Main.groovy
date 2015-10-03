@@ -50,11 +50,11 @@ class Main {
         }
 
         def missingArgs = opts.findAll { shortOpt, optMap ->
-            println "test: ${optMap}"
             if (optMap.required) return !argsMap."${optMap.argName}"
         }
 
         if(missingArgs) {
+            println "Missing arguments: ${missingArgs}"
             cli.usage()
             System.exit(1)
         }
