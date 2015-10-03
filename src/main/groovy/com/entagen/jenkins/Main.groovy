@@ -34,6 +34,8 @@ class Main {
     public static Map<String, String> parseArgs(String[] args) {
         def cli = createCliBuilder()
 
+        println "ARGUMENTS: ${args}"
+
         args.each { arg ->
             println "Argument: ${arg}"
         }
