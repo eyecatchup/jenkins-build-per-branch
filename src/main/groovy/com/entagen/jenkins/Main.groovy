@@ -11,7 +11,7 @@ class Main {
             u: [longOpt: 'git-url',  required: true, args: 1, argName: 'gitUrl', description: "Git Repository URL - gradle flag -DgitUrl=<gitUrl>"],
             p: [longOpt: 'job-prefix', required: true, args: 1, argName: 'templateJobPrefix', description: "Template Job Prefix, - gradle flag -DtemplateJobPrefix=<jobPrefix>"],
             t: [longOpt: 'template-branch', required: true, args: 1, argName:  'templateBranchName', description: "Template Branch Name - gradle flag -DtemplateBranchName=<branchName>"],
-            n: [longOpt: 'parent-view', required: true, args: 1, argName: 'parentView', description: "The parent View Name for the created Jobs - gradle flag -DparentView=<parentView>"],
+            n: [longOpt: 'nested-view', required: false, args: 1, argName: 'nestedView', description: "Parent View Name - gradle flag -DnestedView=<nestedView> - optional - must have Jenkins Nested View Plugin installed"],
             c: [longOpt: 'print-config', required: false, args: 0, argName: 'printConfig', description:  "Check configuration - print out settings then exit - gradle flag -DprintConfig=true"],
             d: [longOpt: 'dry-run', required: false, args: 0, argName: 'dryRun', description:  "Dry run, don't actually modify, create, or delete any jobs, just print out what would happen - gradle flag: -DdryRun=true"],
             s: [longOpt: 'start-on-create', required: false, args: 0, argName: 'startOnCreate', description:  "When creating a new job, start it at once."],
@@ -33,13 +33,6 @@ class Main {
 
     public static Map<String, String> parseArgs(String[] args) {
         def cli = createCliBuilder()
-
-        println "ARGUMENTS: ${args}"
-
-        args.each { arg ->
-            println "Argument: ${arg}"
-        }
-
         OptionAccessor commandLineOptions = cli.parse(args)
 
         // this is necessary as Gradle's command line parsing stinks, it only allows you to pass in system properties (or task properties which are basically the same thing)
@@ -61,7 +54,7 @@ class Main {
         }
 
         if(missingArgs) {
-            println "Missing arguments: ${missingArgs}"
+            missingArgs.each {shortOpt, missingArg -> println "missing required argument: ${missingArg.argName}"}
             cli.usage()
             System.exit(1)
         }
@@ -93,11 +86,6 @@ class Main {
 
     public static Map<String, String> mergeSystemPropertyOptions(OptionAccessor commandLineOptions) {
         Map <String, String> mergedArgs = [:]
-
-        System.getProperties().stringPropertyNames().each { String property ->
-            println "Property: ${property}"
-        }
-
         opts.each { String shortOpt, Map<String, String> optMap ->
             if (optMap.argName) {
                 mergedArgs[optMap.argName] = commandLineOptions."$shortOpt" ?: System.getProperty(optMap.argName)
