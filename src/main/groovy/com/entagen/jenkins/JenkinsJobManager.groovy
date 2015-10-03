@@ -55,7 +55,10 @@ class JenkinsJobManager {
 
     public void createMissingJobs(List<ConcreteJob> expectedJobs, List<String> currentJobs, List<TemplateJob> templateJobs) {
         List<ConcreteJob> missingJobs = expectedJobs.findAll { !currentJobs.contains(it.jobName) }
-        if (!missingJobs) return
+        if (!missingJobs) {
+            println "No missing jobs to create.."
+            return
+        }
 
         for (ConcreteJob missingJob in missingJobs) {
             println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
