@@ -4,7 +4,7 @@ class JenkinsJobManager {
     String templateJobPrefix
     String templateBranchName
     String gitUrl
-    String nestedView
+    String view
     String jenkinsUrl
     String branchNameRegex
     String viewRegex
@@ -59,7 +59,7 @@ class JenkinsJobManager {
 
         for (ConcreteJob missingJob in missingJobs) {
             println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
-            jenkinsApi.cloneJobForBranch(this.nestedView, missingJob, templateJobs)
+            jenkinsApi.cloneJobForBranch(this.view, missingJob, templateJobs)
 
             if (startOnCreate && !startExpected) {
                 jenkinsApi.startJob(missingJob)
