@@ -39,9 +39,9 @@ class JenkinsJobManager {
         syncJobs(allBranchNames, allJobNames, templateJobs)
 
         // create any missing branch views, scoped within a nested view if we were given one
-//        if (!noViews) {
-//            syncViews(allBranchNames)
-//        }
+        if (!noViews) {
+            syncViews(allBranchNames)
+        }
     }
 
     public void syncJobs(List<String> allBranchNames, List<String> allJobNames, List<TemplateJob> templateJobs) {
@@ -124,16 +124,16 @@ class JenkinsJobManager {
     }
 
     public void syncViews(List<String> allBranchNames) {
-        List<String> existingViewNames = jenkinsApi.getViewNames(this.nestedView)
-        List<BranchView> expectedBranchViews = allBranchNames.collect { String branchName -> new BranchView(branchName: branchName, templateJobPrefix: this.templateJobPrefix) }
+//        List<String> existingViewNames = jenkinsApi.getViewNames(this.nestedView)
+//        List<BranchView> expectedBranchViews = allBranchNames.collect { String branchName -> new BranchView(branchName: branchName, templateJobPrefix: this.templateJobPrefix) }
 
-        List<BranchView> missingBranchViews = expectedBranchViews.findAll { BranchView branchView -> !existingViewNames.contains(branchView.viewName)}
-        addMissingViews(missingBranchViews)
+//        List<BranchView> missingBranchViews = expectedBranchViews.findAll { BranchView branchView -> !existingViewNames.contains(branchView.viewName)}
+        addMissingViews(this.templateJobPrefix as List<BranchView>)
 
-        if (!noDelete) {
-            List<String> deprecatedViewNames = getDeprecatedViewNames(existingViewNames, expectedBranchViews)
-            deleteDeprecatedViews(deprecatedViewNames)
-        }
+//        if (!noDelete) {
+//            List<String> deprecatedViewNames = getDeprecatedViewNames(existingViewNames, expectedBranchViews)
+//            deleteDeprecatedViews(deprecatedViewNames)
+//        }
     }
 
     public void addMissingViews(List<BranchView> missingViews) {
