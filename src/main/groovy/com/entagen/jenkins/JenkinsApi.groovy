@@ -56,7 +56,7 @@ class JenkinsApi {
         TemplateJob templateJob = missingJob.templateJob
 
         //Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
-        post('createItem', missingJobConfig, [name: missingJob.jobName, view: 'feature-branches', mode: 'copy', from: templateJob.jobName], ContentType.XML)
+        post('view/feature-branches/createItem', missingJobConfig, [name: missingJob.jobName, mode: 'copy', from: templateJob.jobName], ContentType.XML)
 
         post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
         //Forced disable enable to work around Jenkins' automatic disabling of clones jobs
@@ -115,13 +115,13 @@ class JenkinsApi {
         post(buildViewPath("configSubmit", nestedWithinView, viewName), body)
     }
 
-    void updateViewForBuildJob(ConcreteJob newJob, String viewName) {
+    void updateViewForBuildJob(ConcreteJob newJob) {
 //        String regex = viewRegex ? viewRegex.replaceAll("master", branchView.safeBranchName) : "${branchView.templateJobPrefix}.*${branchView.safeBranchName}"
 //        body = [useincluderegex: 'on', includeRegex: regex, name: viewName, json: '{"name": "' + viewName + '","useincluderegex": {"includeRegex": "' + regex + '"},' + VIEW_COLUMNS_JSON + '}']
 
         body = [Jobs: '{'+newJob.jobName+'}']
 
-        post(buildViewPath("configSubmit", viewName), body)
+        post(buildViewPath("configSubmit",  viewName), body)
     }
 
     List<String> getViewNames(String nestedWithinView = null) {
