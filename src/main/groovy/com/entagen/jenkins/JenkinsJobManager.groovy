@@ -10,7 +10,7 @@ class JenkinsJobManager {
     String viewRegex
     String jenkinsUser
     String jenkinsPassword
-    
+
     Boolean dryRun = false
     Boolean noViews = false
     Boolean noDelete = false
@@ -39,9 +39,9 @@ class JenkinsJobManager {
         syncJobs(allBranchNames, allJobNames, templateJobs)
 
         // create any missing branch views, scoped within a nested view if we were given one
-        if (!noViews) {
-            syncViews(allBranchNames)
-        }
+//        if (!noViews) {
+//            syncViews(allBranchNames)
+//        }
     }
 
     public void syncJobs(List<String> allBranchNames, List<String> allJobNames, List<TemplateJob> templateJobs) {
