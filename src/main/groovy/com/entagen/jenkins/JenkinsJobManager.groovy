@@ -66,7 +66,7 @@ class JenkinsJobManager {
             println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
             jenkinsApi.cloneJobForBranch(missingJob, templateJobs)
 
-            jenkinsApi.updateViewForBuildJob(missingJob, this.nestedView);
+//            jenkinsApi.updateViewForBuildJob(missingJob, this.nestedView);
 
             if (startOnCreate && !startExpected) {
                 jenkinsApi.startJob(missingJob)
