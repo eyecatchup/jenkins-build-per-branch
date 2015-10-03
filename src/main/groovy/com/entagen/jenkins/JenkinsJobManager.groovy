@@ -40,7 +40,7 @@ class JenkinsJobManager {
 
         // create any missing branch views, scoped within a nested view if we were given one
         if (!noViews) {
-            syncViews(allBranchNames)
+//            syncViews(allBranchNames)
         }
     }
 
@@ -65,6 +65,9 @@ class JenkinsJobManager {
         for (ConcreteJob missingJob in missingJobs) {
             println "Creating missing job: ${missingJob.jobName} from ${missingJob.templateJob.jobName}"
             jenkinsApi.cloneJobForBranch(missingJob, templateJobs)
+
+            jenkinsApi.updateViewForBuildJob(missingJob, this.nestedView);
+
             if (startOnCreate && !startExpected) {
                 jenkinsApi.startJob(missingJob)
             }
@@ -128,7 +131,7 @@ class JenkinsJobManager {
 //        List<BranchView> expectedBranchViews = allBranchNames.collect { String branchName -> new BranchView(branchName: branchName, templateJobPrefix: this.templateJobPrefix) }
 
 //        List<BranchView> missingBranchViews = expectedBranchViews.findAll { BranchView branchView -> !existingViewNames.contains(branchView.viewName)}
-        addMissingView(new BranchView(branchName: this.templateJobPrefix, templateJobPrefix: this.templateJobPrefix))
+        addMissingView(new BranchView(branchName: "", templateJobPrefix: this.templateJobPrefix))
 
 //        if (!noDelete) {
 //            List<String> deprecatedViewNames = getDeprecatedViewNames(existingViewNames, expectedBranchViews)

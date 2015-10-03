@@ -115,6 +115,15 @@ class JenkinsApi {
         post(buildViewPath("configSubmit", nestedWithinView, viewName), body)
     }
 
+    void updateViewForBuildJob(ConcreteJob newJob, String viewName) {
+//        String regex = viewRegex ? viewRegex.replaceAll("master", branchView.safeBranchName) : "${branchView.templateJobPrefix}.*${branchView.safeBranchName}"
+//        body = [useincluderegex: 'on', includeRegex: regex, name: viewName, json: '{"name": "' + viewName + '","useincluderegex": {"includeRegex": "' + regex + '"},' + VIEW_COLUMNS_JSON + '}']
+
+        body = [Jobs: '{'+newJob.jobName+'}']
+
+        post(buildViewPath("configSubmit", viewName), body)
+    }
+
     List<String> getViewNames(String nestedWithinView = null) {
         String path = buildViewPath("api/json", nestedWithinView)
         println "getting views - nestedWithinView:${nestedWithinView} at path: $path"
