@@ -33,6 +33,11 @@ class Main {
 
     public static Map<String, String> parseArgs(String[] args) {
         def cli = createCliBuilder()
+
+        args.each { arg ->
+            println "${arg}"
+        }
+
         OptionAccessor commandLineOptions = cli.parse(args)
 
         // this is necessary as Gradle's command line parsing stinks, it only allows you to pass in system properties (or task properties which are basically the same thing)
