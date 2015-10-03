@@ -35,7 +35,7 @@ class Main {
         def cli = createCliBuilder()
 
         args.each { arg ->
-            println "${arg}"
+            println "Argument: ${arg}"
         }
 
         OptionAccessor commandLineOptions = cli.parse(args)
