@@ -11,7 +11,7 @@ class Main {
             u: [longOpt: 'git-url',  required: true, args: 1, argName: 'gitUrl', description: "Git Repository URL - gradle flag -DgitUrl=<gitUrl>"],
             p: [longOpt: 'job-prefix', required: true, args: 1, argName: 'templateJobPrefix', description: "Template Job Prefix, - gradle flag -DtemplateJobPrefix=<jobPrefix>"],
             t: [longOpt: 'template-branch', required: true, args: 1, argName:  'templateBranchName', description: "Template Branch Name - gradle flag -DtemplateBranchName=<branchName>"],
-            n: [longOpt: 'parent-view', required: true, args: 1, argName: 'parentView', description: "The parent View Name for the created Jobs - gradle flag -Dview=<view>"],
+            n: [longOpt: 'parent-view', required: true, args: 1, argName: 'parentView', description: "The parent View Name for the created Jobs - gradle flag -DparentView=<viewName>"],
             c: [longOpt: 'print-config', required: false, args: 0, argName: 'printConfig', description:  "Check configuration - print out settings then exit - gradle flag -DprintConfig=true"],
             d: [longOpt: 'dry-run', required: false, args: 0, argName: 'dryRun', description:  "Dry run, don't actually modify, create, or delete any jobs, just print out what would happen - gradle flag: -DdryRun=true"],
             s: [longOpt: 'start-on-create', required: false, args: 0, argName: 'startOnCreate', description:  "When creating a new job, start it at once."],
@@ -39,8 +39,6 @@ class Main {
         // we need to merge in those properties in case the script is being called from `gradle syncWithGit` and the user is giving us system properties
         Map<String, String> argsMap = mergeSystemPropertyOptions(commandLineOptions)
 
-        println "arguments: ${argsMap}"
-
         if (argsMap.help) {
             cli.usage()
             System.exit(0)
@@ -57,7 +55,6 @@ class Main {
         }
 
         if(missingArgs) {
-            missingArgs.each {shortOpt, missingArg -> println "missing required argument: ${missingArg.argName}"}
             cli.usage()
             System.exit(1)
         }
