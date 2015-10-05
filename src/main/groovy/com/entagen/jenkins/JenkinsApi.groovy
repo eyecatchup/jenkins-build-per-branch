@@ -94,7 +94,9 @@ class JenkinsApi {
 
         config = config.replaceAll("#branchname#", "${missingJob.branchName}")
 
-        config = config.replaceAll("#safeBranchname#", "${missingJob.getSafeBranchName()}")
+        config = config.replaceAll("#safeBranchname#", "${missingJob.safeBranchName}")
+
+        println "Config for missing job: $config"
 
         return config
     }
