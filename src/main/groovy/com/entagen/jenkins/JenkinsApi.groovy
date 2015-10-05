@@ -92,9 +92,9 @@ class JenkinsApi {
             config = config.replaceAll(it.jobName, it.jobNameForBranch(missingJob.branchName))
         }
 
-        String branchName = missingJob.branchName.substring(missingJob.branchName.indexOf('/') + 1)
-
         config = config.replaceAll("#branchname#", "${missingJob.branchName}")
+
+        config = config.replaceAll("#safeBranchname#", "${missingJob.getSafeBranchName()}")
 
         return config
     }

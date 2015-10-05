@@ -12,7 +12,6 @@ class BranchView {
         return branchName.replaceAll('/', '_')
     }
 
-
     public String toString() {
         return this.viewName
     }
