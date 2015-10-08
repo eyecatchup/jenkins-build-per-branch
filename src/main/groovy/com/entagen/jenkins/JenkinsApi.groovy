@@ -68,7 +68,9 @@ class JenkinsApi {
             // Auto start the build, as some jenkins change broke auto starting builds
             println "Starting job ${missingJob.jobName}."
             post('job/' + missingJob.jobName + '/build')
-
+            
+            // Resave the config so polling also works again
+            post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
         }
     }
 
