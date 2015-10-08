@@ -64,6 +64,11 @@ class JenkinsApi {
         post('job/' + missingJob.jobName + '/disable')
         if (!missingJobConfig.contains("<disabled>true</disabled>")) {
             post('job/' + missingJob.jobName + '/enable')
+    
+            // Auto start the build, as some jenkins change broke auto starting builds
+            println "Starting job ${job.jobName}."
+            post('job/' + missingJob.jobName + '/build')
+
         }
     }
 
