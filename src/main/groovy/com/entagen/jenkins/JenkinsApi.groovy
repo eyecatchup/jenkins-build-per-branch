@@ -66,7 +66,7 @@ class JenkinsApi {
             post('job/' + missingJob.jobName + '/enable')
     
             // Auto start the build, as some jenkins change broke auto starting builds
-            println "Starting job ${job.jobName}."
+            println "Starting job ${missingJob.jobName}."
             post('job/' + missingJob.jobName + '/build')
 
         }
