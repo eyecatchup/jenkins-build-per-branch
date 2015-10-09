@@ -3,13 +3,14 @@ package com.entagen.jenkins
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.RESTClient
-import static groovyx.net.http.ContentType.*
-import org.apache.http.conn.HttpHostConnectException
-import org.apache.http.client.HttpResponseException
-import org.apache.http.HttpStatus
-import org.apache.http.HttpRequestInterceptor
-import org.apache.http.protocol.HttpContext
 import org.apache.http.HttpRequest
+import org.apache.http.HttpRequestInterceptor
+import org.apache.http.HttpStatus
+import org.apache.http.client.HttpResponseException
+import org.apache.http.conn.HttpHostConnectException
+import org.apache.http.protocol.HttpContext
+
+import static groovyx.net.http.ContentType.*
 
 class JenkinsApi {
     String jenkinsServerUrl
@@ -51,20 +52,17 @@ class JenkinsApi {
         response.data.text
     }
 
-    void cloneJobForBranch(ConcreteJob missingJob, List<TemplateJob> templateJobs) {
+    void cloneJobForBranch(String viewForJob, ConcreteJob missingJob, List<TemplateJob> templateJobs) {
         String missingJobConfig = configForMissingJob(missingJob, templateJobs)
         TemplateJob templateJob = missingJob.templateJob
 
         //Copy job with jenkins copy job api, this will make sure jenkins plugins get the call to make a copy if needed (promoted builds plugin needs this)
-        post('createItem', missingJobConfig, [name: missingJob.jobName, mode: 'copy', from: templateJob.jobName], ContentType.XML)
+        post('view/' + viewForJob + '/createItem', missingJobConfig, [name: missingJob.jobName, mode: 'copy', from: templateJob.jobName], ContentType.XML)
 
         post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
         //Forced disable enable to work around Jenkins' automatic disabling of clones jobs
-        //But only if the original job was enabled
         post('job/' + missingJob.jobName + '/disable')
-        if (!missingJobConfig.contains("<disabled>true</disabled>")) {
-            post('job/' + missingJob.jobName + '/enable')
-        }
+        post('job/' + missingJob.jobName + '/enable')
     }
 
     void startJob(ConcreteJob job) {
@@ -82,7 +80,7 @@ class JenkinsApi {
         config = config.replaceAll("(\\p{Alnum}*[>/])(${templateJob.templateBranchName})<") { fullMatch, prefix, branchName ->
             // jenkins job configs may have certain fields whose values should not be replaced, the most common being <assignedNode>
             // which is used to assign a job to a specific node (potentially "master") and the "master" branch
-            if (ignoreTags.find { it + ">" == prefix}) {
+            if (ignoreTags.find { it + ">" == prefix }) {
                 return fullMatch
             } else {
                 return "$prefix${missingJob.branchName}<"
@@ -94,45 +92,16 @@ class JenkinsApi {
             config = config.replaceAll(it.jobName, it.jobNameForBranch(missingJob.branchName))
         }
 
+        config = config.replaceAll("#branchname#", "${missingJob.branchName}")
+
+        config = config.replaceAll("#safeBranchname#", "${missingJob.safeBranchName}")
+
         return config
     }
 
     void deleteJob(String jobName) {
         println "deleting job $jobName"
         post("job/${jobName}/doDelete")
-    }
-
-    void createViewForBranch(BranchView branchView, String nestedWithinView = null, String viewRegex = null) {
-        String viewName = branchView.viewName
-        Map body = [name: viewName, mode: 'hudson.model.ListView', Submit: 'OK', json: '{"name": "' + viewName + '", "mode": "hudson.model.ListView"}']
-        println "creating view - viewName:${viewName}, nestedView:${nestedWithinView}"
-        post(buildViewPath("createView", nestedWithinView), body)
-
-        String regex = viewRegex ? viewRegex.replaceAll("master", branchView.safeBranchName) : "${branchView.templateJobPrefix}.*${branchView.safeBranchName}"
-        body = [useincluderegex: 'on', includeRegex: regex, name: viewName, json: '{"name": "' + viewName + '","useincluderegex": {"includeRegex": "' + regex + '"},' + VIEW_COLUMNS_JSON + '}']
-        println "configuring view ${viewName}"
-        post(buildViewPath("configSubmit", nestedWithinView, viewName), body)
-    }
-
-    List<String> getViewNames(String nestedWithinView = null) {
-        String path = buildViewPath("api/json", nestedWithinView)
-        println "getting views - nestedWithinView:${nestedWithinView} at path: $path"
-        def response = get(path: path, query: [tree: 'views[name,jobs[name]]'])
-        response.data?.views?.name
-    }
-
-    void deleteView(String viewName, String nestedWithinView = null) {
-        println "deleting view - viewName:${viewName}, nestedView:${nestedWithinView}"
-        post(buildViewPath("doDelete", nestedWithinView, viewName))
-    }
-
-    protected String buildViewPath(String pathSuffix, String... nestedViews) {
-        List elems = nestedViews.findAll { it != null }
-        String viewPrefix = elems.collect { "view/${it}" }.join('/')
-
-        if (viewPrefix) return "$viewPrefix/$pathSuffix"
-
-        return pathSuffix
     }
 
     protected get(Map map) {
@@ -177,8 +146,7 @@ class JenkinsApi {
                     crumbInfo = [:]
                     crumbInfo['field'] = response.data.crumbRequestField
                     crumbInfo['crumb'] = response.data.crumb
-                }
-                else {
+                } else {
                     println "Found crumbIssuer but didn't understand the response data trying to move on."
                     println "Response data: " + response.data
                 }
@@ -186,8 +154,7 @@ class JenkinsApi {
             catch (HttpResponseException e) {
                 if (e.response?.status == 404) {
                     println "Couldn't find crumbIssuer for jenkins. Just moving on it may not be needed."
-                }
-                else {
+                } else {
                     def msg = "Unexpected failure on ${jenkinsServerUrl}crumbIssuer/api/json: ${resp.statusLine} ${resp.status}"
                     throw new Exception(msg)
                 }
@@ -212,9 +179,9 @@ class JenkinsApi {
         Integer status = HttpStatus.SC_EXPECTATION_FAILED
 
         http.handler.failure = { resp ->
-            def msg = "Unexpected failure on $jenkinsServerUrl$path: ${resp.statusLine} ${resp.status}"
+            println "Unexpected failure on $jenkinsServerUrl$path: ${resp.statusLine} ${resp.status}"
             status = resp.statusLine.statusCode
-            throw new Exception(msg)
+            return status
         }
 
         http.post(path: path, body: postBody, query: params,
