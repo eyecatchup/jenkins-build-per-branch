@@ -111,7 +111,7 @@ class JenkinsJobManager {
 
         List<TemplateJob> templateJobs = allJobNames.findResults { String jobName ->
             TemplateJob templateJob = null
-            jobName.find(regex) { full, baseJobName, branchName ->
+            jobName.find(regex) { full, baseJobName ->
                 //templateJob = new TemplateJob(jobName: full, baseJobName: baseJobName, templateBranchName: branchName)
                 templateJob = new TemplateJob(jobName: full, baseJobName: baseJobName, templateBranchName: 'feature')
             }
