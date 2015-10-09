@@ -3,14 +3,13 @@ package com.entagen.jenkins
 import groovyx.net.http.ContentType
 import groovyx.net.http.HTTPBuilder
 import groovyx.net.http.RESTClient
-import org.apache.http.HttpRequest
-import org.apache.http.HttpRequestInterceptor
-import org.apache.http.HttpStatus
-import org.apache.http.client.HttpResponseException
-import org.apache.http.conn.HttpHostConnectException
-import org.apache.http.protocol.HttpContext
-
 import static groovyx.net.http.ContentType.*
+import org.apache.http.conn.HttpHostConnectException
+import org.apache.http.client.HttpResponseException
+import org.apache.http.HttpStatus
+import org.apache.http.HttpRequestInterceptor
+import org.apache.http.protocol.HttpContext
+import org.apache.http.HttpRequest
 
 class JenkinsApi {
     String jenkinsServerUrl
@@ -61,8 +60,18 @@ class JenkinsApi {
 
         post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
         //Forced disable enable to work around Jenkins' automatic disabling of clones jobs
+		//But only if the original job was enabled
         post('job/' + missingJob.jobName + '/disable')
-        post('job/' + missingJob.jobName + '/enable')
+        if (!missingJobConfig.contains("<disabled>true</disabled>")) {
+            post('job/' + missingJob.jobName + '/enable')
+    
+            // Auto start the build, as some jenkins change broke auto starting builds
+            println "Starting job ${missingJob.jobName}."
+            post('job/' + missingJob.jobName + '/build')
+            
+            // Resave the config so polling also works again
+            post('job/' + missingJob.jobName + "/config.xml", missingJobConfig, [:], ContentType.XML)
+        }
     }
 
     void startJob(ConcreteJob job) {
