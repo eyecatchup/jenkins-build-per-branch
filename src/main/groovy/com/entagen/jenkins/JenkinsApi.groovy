@@ -105,6 +105,9 @@ class JenkinsApi {
 
         config = config.replaceAll("#safeBranchname#", "${missingJob.safeBranchName}")
 
+        config = config.replaceFirst("*/develop", "*/${missingJob.branchName}")
+        //config = config.replaceFirst("*/master", "*/${missingJob.branchName}")
+
         return config
     }
 
